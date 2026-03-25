@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES-256 Ransomware Demo - Realistic Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .warning {
+            background: #ffc107;
+            color: #856404;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .info {
+            background: #17a2b8;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .demo-section {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .demo-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .danger-btn {
+            background: #dc3545;
+        }
+
+        .warning-btn {
+            background: #ffc107;
+            color: #856404;
+        }
+
+        .success-btn {
+            background: #28a745;
+        }
+
+        .info-btn {
+            background: #17a2b8;
+        }
+
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .ransom-message {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+
+        .key-display {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+            padding: 10px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+            padding: 10px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .encryption-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔐 AES-256 Ransomware Educational Demo 🔐</h1>
+        <p>Realistic Simulation - Files are encrypted in-place, keeping original filenames</p>
+    </div>
+
+    <div class="warning">
+        🛡️ EDUCATIONAL PURPOSE ONLY - All encryption is local with keys shown for learning 🛡️
+    </div>
+
+    <div class="info">
+        📊 REALISTIC BEHAVIOR: Files are overwritten with AES-256 encrypted data | Original filenames preserved | Keys shown in web interface for education
+    </div>
+
+    <div class="content">
+        <div class="demo-section">
+            <h3>📁 Step 1: Create Test File</h3>
+            <div class="input-group">
+                <label>Filename:</label>
+                <input type="text" id="filename" value="confidential_report.txt">
+            </div>
+            <div class="input-group">
+                <label>Content (will be encrypted with AES-256):</label>
+                <textarea id="fileContent">CONFIDENTIAL DOCUMENT
+
+Project: Q4 2024 Strategy
+Budget: $2,500,000
+Key Personnel: John Smith, Sarah Johnson
+Deadline: December 15, 2024
+
+This document contains sensitive information.
+Unauthorized access is prohibited.</textarea>
+            </div>
+            <button onclick="createFile()">Create File on Desktop</button>
+            <div id="createResponse" class="response"></div>
+        </div>
+
+        <div class="demo-section">
+            <h3>🔒 Step 2: Simulate Ransomware Attack</h3>
+            <div class="input-group">
+                <label>File Path to Encrypt:</label>
+                <input type="text" id="lockFilePath" placeholder="e.g., C:/Users/YourName/Desktop/confidential_report.txt">
+            </div>
+            <button onclick="lockFile()" class="danger-btn">🔐 Encrypt with AES-256</button>
+            <button onclick="showRansomMessage()" class="warning-btn">💰 Show Ransom Message</button>
+            <button onclick="checkFileStatus()" class="info-btn">📊 Check File Status</button>
+            <div id="lockResponse" class="response"></div>
+        </div>
+
+        <div class="demo-section">
+            <h3>🔓 Step 3: Decrypt Files (Using Key from Web Interface)</h3>
+            <div class="input-group">
+                <label>File Path to Decrypt:</label>
+                <input type="text" id="decryptFilePath" placeholder="e.g., C:/Users/YourName/Desktop/confidential_report.txt">
+            </div>
+            <div class="input-group">
+                <label>Encryption Key (from encryption response):</label>
+                <input type="text" id="decryptKey" placeholder="Paste the encryption key here">
+            </div>
+            <button onclick="decryptFile()" class="success-btn">🔓 Decrypt File</button>
+            <button onclick="listAffectedFiles()" class="info-btn">📋 List Encrypted Files</button>
+            <div id="recoveryResponse" class="response"></div>
+        </div>
+
+        <div class="demo-section">
+            <h3>🗑️ Step 4: Destructive Actions</h3>
+            <div class="input-group">
+                <label>File Path to Delete:</label>
+                <input type="text" id="deleteFilePath" placeholder="e.g., C:/Users/YourName/Desktop/confidential_report.txt">
+            </div>
+            <button onclick="deleteFile()" class="danger-btn">⚠️ Permanently Delete File</button>
+            <div id="deleteResponse" class="response"></div>
+        </div>
+
+        <div class="demo-section full-width">
+            <h3>📖 Educational Information</h3>
+            <div class="info" style="background: #e9ecef; color: #333; text-align: left;">
+                <strong>🔐 How Real Ransomware Works:</strong><br><br>
+                1. <strong>Infection</strong>: Malware executes on the victim's computer<br>
+                2. <strong>Key Generation</strong>: Generates unique AES-256 encryption key for each file<br>
+                3. <strong>Encryption</strong>: Encrypts files in-place (original filename preserved)<br>
+                4. <strong>Key Exfiltration</strong>: Sends encryption keys to attacker's command & control server<br>
+                5. <strong>Ransom Note</strong>: Displays ransom demand with payment instructions<br>
+                6. <strong>No Recovery</strong>: Without the key, AES-256 encrypted files are unrecoverable<br><br>
+
+                <strong>⚠️ This Demo Shows:</strong><br>
+                • Files are encrypted with real AES-256 (military-grade encryption)<br>
+                • Original filenames are preserved (realistic behavior)<br>
+                • Encrypted files contain binary data that cannot be read<br>
+                • Keys are displayed in web interface for educational purposes<br>
+                • In real ransomware, keys would NOT be accessible to the victim<br><br>
+
+                <strong>🛡️ Protection Tips:</strong><br>
+                • Maintain offline backups of important files<br>
+                • Keep software and antivirus updated<br>
+                • Be cautious with email attachments and links<br>
+                • Use the principle of least privilege for user accounts<br>
+                • Never pay ransom demands - it encourages more attacks
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = 'http://localhost:8080/api/ransomware';
+    let lastEncryptionKey = null;
+
+    async function createFile() {
+        const filename = document.getElementById('filename').value;
+        const content = document.getElementById('fileContent').value;
+
+        try {
+            const response = await fetch(`${API_BASE}/create-dummy-file?filename=${encodeURIComponent(filename)}&content=${encodeURIComponent(content)}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            document.getElementById('createResponse').innerHTML = `
+                    ✅ ${data.message}<br>
+                    📍 Path: ${data.filePath}<br>
+                    📊 Original file created with readable content
+                `;
+            document.getElementById('lockFilePath').value = data.filePath;
+            document.getElementById('decryptFilePath').value = data.filePath;
+            document.getElementById('deleteFilePath').value = data.filePath;
+        } catch (error) {
+            document.getElementById('createResponse').innerHTML = `❌ Error: ${error.message}`;
+        }
+    }
+
+    async function lockFile() {
+        const filepath = document.getElementById('lockFilePath').value;
+        if (!filepath) {
+            alert('Please enter a file path or create a file first');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/lock-file?filepath=${encodeURIComponent(filepath)}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                lastEncryptionKey = data.encryptionKey;
+                document.getElementById('decryptKey').value = data.encryptionKey;
+                document.getElementById('lockResponse').innerHTML = `
+                        <div class="success">✅ ${data.message}</div>
+                        <div class="key-display">
+                            🔑 ENCRYPTION KEY (SAVE THIS FOR DECRYPTION):<br>
+                            <strong>${data.encryptionKey}</strong>
+                        </div>
+                        📁 File: ${data.filePath}<br>
+                        🔐 Algorithm: ${data.algorithm}<br>
+                        🔑 Key Size: ${data.keySize} bits<br><br>
+                        <div class="warning" style="margin-top: 10px;">
+                            ⚠️ IN REAL RANSOMWARE: This key would be sent to the attacker's server and NOT shown to you!
+                        </div>
+                    `;
+            } else {
+                document.getElementById('lockResponse').innerHTML = `<div class="error">❌ ${data.message}</div>`;
+            }
+        } catch (error) {
+            document.getElementById('lockResponse').innerHTML = `❌ Error: ${error.message}`;
+        }
+    }
+
+    async function showRansomMessage() {
+        try {
+            const response = await fetch(`${API_BASE}/show-ransom-message`);
+            const data = await response.json();
+            document.getElementById('lockResponse').innerHTML = `<div class="ransom-message">${data.ransomNote.replace(/\n/g, '<br>')}</div>`;
+        } catch (error) {
+            document.getElementById('lockResponse').innerHTML = `❌ Error: ${error.message}`;
+        }
+    }
+
+    async function checkFileStatus() {
+        const filepath = document.getElementById('lockFilePath').value;
+        if (!filepath) {
+            alert('Please enter a file path');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/file-status?filepath=${encodeURIComponent(filepath)}`);
+            const data = await response.json();
+            let html = '<strong>📊 File Status:</strong><br>';
+            html += `Exists: ${data.exists}<br>`;
+            if (data.exists) {
+                html += `Size: ${data.size} bytes<br>`;
+                html += `Encrypted: ${data.isEncrypted ? 'Yes' : 'No'}<br>`;
+                if (data.looksLikeText === false) {
+                    html += `<div class="warning">⚠️ File contains binary data - appears to be encrypted!</div>`;
+                }
+                if (data.isEncrypted) {
+                    html += `<div class="key-display">🔐 This file is encrypted with AES-256</div>`;
+                }
+            }
+            document.getElementById('lockResponse').innerHTML = html;
+        } catch (error) {
+            document.getElementById('lockResponse').innerHTML = `❌ Error: ${error.message}`;
+        }
+    }
+
+    async function decryptFile() {
+        const filepath = document.getElementById('decryptFilePath').value;
+        const key = document.getElementById('decryptKey').value;
+
+        if (!filepath) {
+            alert('Please enter a file path');
+            return;
+        }
+        if (!key) {
+            alert('Please enter the encryption key (shown when you encrypted the file)');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/decrypt-file?filepath=${encodeURIComponent(filepath)}&encryptionKey=${encodeURIComponent(key)}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('recoveryResponse').innerHTML = `
+                        <div class="success">✅ ${data.message}</div>
+                        📁 File: ${data.filePath}<br>
+                        📄 Content Preview:<br>
+                        <div class="key-display">${data.preview}</div>
+                        <div class="success">✨ File successfully restored to readable format!</div>
+                    `;
+            } else {
+                document.getElementById('recoveryResponse').innerHTML = `<div class="error">❌ ${data.message}</div>`;
+            }
+        } catch (error) {
+            document.getElementById('recoveryResponse').innerHTML = `❌ Error: ${error.message}`;
+        }
+    }
+
+    async function listAffectedFiles() {
+        try {
+            const response = await fetch(`${API_BASE}/affected-files`);
+            const data = await response.json();
+            let html = `<strong>📋 Encrypted Files (${data.count} total):</strong><br>`;
+            if (data.affectedFiles && data.affectedFiles.length > 0) {
+                data.affectedFiles.forEach(file => {
+                    html += `🔐 ${file}<br>`;
+                });
+                html += `<div class="warning" style="margin-top: 10px;">
+                        💡 These files are encrypted with AES-256 and have been overwritten with encrypted data.
+                        ${data.count > 0 ? 'Use the decryption key shown during encryption to restore them.' : ''}
+                    </div>`;
+            } else {
+                html += 'No encrypted files found';
+            }
+            document.getElementById('recoveryResponse').innerHTML = html;
+        } catch (error) {
+            document.getElementById('recoveryResponse').innerHTML = `❌ Error: ${error.message}`;
+        }
+    }
+
+    async function deleteFile() {
+        const filepath = document.getElementById('deleteFilePath').value;
+        if (!filepath) {
+            alert('Please enter a file path');
+            return;
+        }
+
+        if (confirm('⚠️ WARNING: This will permanently delete the file! Are you sure?')) {
+            try {
+                const response = await fetch(`${API_BASE}/delete-file?filepath=${encodeURIComponent(filepath)}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                document.getElementById('deleteResponse').innerHTML = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('deleteResponse').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+    }
+</script>
+</body>
+</html>
