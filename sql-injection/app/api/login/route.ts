@@ -19,17 +19,16 @@ export async function POST(request: Request) {
     );
   }
 
-  // INTENTIONALLY VULNERABLE: raw string interpolation, no parameterized query.
   const query = `
     SELECT email, role
     FROM users
-    WHERE email = '${email}' AND password = '${password}'
+    WHERE email = $1 AND password = $2
     ORDER BY id ASC
     LIMIT 1
   `;
 
   try {
-    const result = await getPool().query<UserRow>(query);
+    const result = await getPool().query<UserRow>(query, [email, password]);
 
     if (result.rows.length === 0) {
       return NextResponse.json(
