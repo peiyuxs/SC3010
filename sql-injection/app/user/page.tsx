@@ -51,17 +51,14 @@ export default function UserPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col px-6 py-12">
       <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold">User Dashboard</h1>
-        <p className="mb-4 text-sm opacity-80">
-          SQL Executor - CVE-2026-0488 Demo
-        </p>
+        <h1 className="mb-2 text-3xl font-bold">Scripting Editor (SQL)</h1>
+        <p className="mb-4 text-sm opacity-80">CVE-2026-0488 SAP Vulnerability Demo</p>
 
         <div className="rounded-xl border border-red-500/50 bg-red-50/60 p-4 text-sm">
-          <p className="font-semibold text-red-900">⚠️ VULNERABILITY:</p>
           <p className="text-red-800">
-            This SQL editor allows execution of arbitrary SQL statements. An
-            authenticated user can dump data, modify records, or destroy the
-            database.
+            <span className="font-semibold text-red-900">VULNERABILITY: </span>
+            Allows execution of arbitrary SQL statements. Allows authenticated user to
+            dump data, modify records, or destroy the database.
           </p>
         </div>
       </div>
@@ -79,7 +76,7 @@ export default function UserPage() {
             rows={10}
             value={sql}
             onChange={(e) => setSql(e.target.value)}
-            placeholder="Enter SQL statement here...&#10;&#10;Examples:&#10;SELECT * FROM users;&#10;UPDATE users SET role = 'admin' WHERE email = 'user@demo.local';"
+            placeholder="SELECT * FROM users..."
             required
           />
         </div>
@@ -110,23 +107,16 @@ export default function UserPage() {
 
       <div className="mt-8 space-y-4">
         <div className="rounded-xl border p-4">
-          <p className="mb-2 font-semibold">Example: Dump all users</p>
+          <p className="mb-2 font-semibold">Example SQL Statements</p>
           <pre className="overflow-x-auto text-black rounded-md bg-gray-50 p-2 font-mono text-xs">
-            {`SELECT * FROM users;`}
-          </pre>
-        </div>
+            {`-- Confidentiality breach, Show all users
+SELECT * FROM users;
 
-        <div className="rounded-xl border p-4">
-          <p className="mb-2 font-semibold">Example: Escalate privilege</p>
-          <pre className="overflow-x-auto text-black rounded-md bg-gray-50 p-2 font-mono text-xs">
-            {`UPDATE users SET role = 'admin' WHERE email = 'user@demo.local';`}
-          </pre>
-        </div>
+-- Privilege escalation
+UPDATE users SET role = 'admin' WHERE email = 'user@demo.local';
 
-        <div className="rounded-xl border p-4">
-          <p className="mb-2 font-semibold">Example: Destroy table</p>
-          <pre className="overflow-x-auto text-black rounded-md bg-gray-50 p-2 font-mono text-xs">
-            {`DROP TABLE users;`}
+-- Destroy data
+DROP TABLE users;`}
           </pre>
         </div>
       </div>
