@@ -21,6 +21,16 @@ async function seed() {
     );
   `);
 
+  await client.query(`
+    CREATE TABLE query_logs (
+  id SERIAL PRIMARY KEY,
+  executed_at TIMESTAMP DEFAULT NOW(),
+  executed_by TEXT NOT NULL,
+  query_text TEXT NOT NULL,
+  success BOOLEAN,
+  rows_affected INT
+);`)
+
   await client.query("TRUNCATE TABLE users RESTART IDENTITY;");
 
   await client.query(`

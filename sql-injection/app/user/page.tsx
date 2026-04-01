@@ -99,11 +99,65 @@ export default function UserPage() {
         )}
 
         {result && (
-          <div className="rounded-md bg-green-50 p-4">
+          <div className="rounded-md bg-green-100 p-4">
             <p className="mb-2 font-semibold text-green-900">Result:</p>
-            <pre className="overflow-x-auto text-black rounded-md bg-white p-3 font-mono text-sm">
-              {result}
-            </pre>
+            {(() => {
+              try {
+                const parsed = JSON.parse(result);
+                const rows = Array.isArray(parsed)
+                  ? parsed
+                  : parsed && typeof parsed === "object"
+                    ? ((Object.values(parsed).find((v) => Array.isArray(v)) as
+                        | Array<Record<string, unknown>>
+                        | undefined) ?? [])
+                    : [];
+
+                if (rows.length === 0) {
+                  return (
+                    <pre className="overflow-x-auto text-black rounded-md bg-white p-3 font-mono text-sm">
+                      {result}
+                    </pre>
+                  );
+                }
+
+                return (
+                  <div className="overflow-x-auto rounded-md bg-white">
+                    <table className="w-full border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-gray-100 text-black text-left">
+                          <th className="border px-3 py-2">ID</th>
+                          <th className="border px-3 py-2">Email</th>
+                          <th className="border px-3 py-2">Role</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map(
+                          (user: Record<string, unknown>, index: number) => (
+                            <tr key={index}>
+                              <td className="border text-black px-3 py-2">
+                                {String(user.id ?? "")}
+                              </td>
+                              <td className="border text-black px-3 py-2">
+                                {String(user.email ?? "")}
+                              </td>
+                              <td className="border text-black px-3 py-2">
+                                {String(user.role ?? "")}
+                              </td>
+                            </tr>
+                          ),
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              } catch {
+                return (
+                  <pre className="overflow-x-auto text-black rounded-md bg-white p-3 font-mono text-sm">
+                    {result}
+                  </pre>
+                );
+              }
+            })()}
           </div>
         )}
       </form>
