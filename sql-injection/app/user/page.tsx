@@ -51,14 +51,17 @@ export default function UserPage() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col px-6 py-12">
       <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold">Scripting Editor (SQL)</h1>
-        <p className="mb-4 text-sm opacity-80">CVE-2026-0488 SAP Vulnerability Demo</p>
+        <h1 className="mb-2 text-3xl font-bold">User Dashboard</h1>
+        <p className="mb-4 text-sm opacity-80">
+          SQL Executor - CVE-2026-0488 Demo
+        </p>
 
         <div className="rounded-xl border border-red-500/50 bg-red-50/60 p-4 text-sm">
+          <p className="font-semibold text-red-900">⚠️ VULNERABILITY:</p>
           <p className="text-red-800">
-            <span className="font-semibold text-red-900">VULNERABILITY: </span>
-            Allows execution of arbitrary SQL statements. Allows authenticated user to
-            dump data, modify records, or destroy the database.
+            This SQL editor allows execution of arbitrary SQL statements. An
+            authenticated user can dump data, modify records, or destroy the
+            database.
           </p>
         </div>
       </div>
@@ -76,7 +79,7 @@ export default function UserPage() {
             rows={10}
             value={sql}
             onChange={(e) => setSql(e.target.value)}
-            placeholder="SELECT * FROM users..."
+            placeholder="Enter SQL statement here...&#10;&#10;Examples:&#10;SELECT * FROM users;&#10;UPDATE users SET role = 'admin' WHERE email = 'user@demo.local';"
             required
           />
         </div>
@@ -96,27 +99,88 @@ export default function UserPage() {
         )}
 
         {result && (
-          <div className="rounded-md bg-green-50 p-4">
+          <div className="rounded-md bg-green-100 p-4">
             <p className="mb-2 font-semibold text-green-900">Result:</p>
-            <pre className="overflow-x-auto text-black rounded-md bg-white p-3 font-mono text-sm">
-              {result}
-            </pre>
+            {(() => {
+              try {
+                const parsed = JSON.parse(result);
+                const rows = Array.isArray(parsed)
+                  ? parsed
+                  : parsed && typeof parsed === "object"
+                    ? ((Object.values(parsed).find((v) => Array.isArray(v)) as
+                        | Array<Record<string, unknown>>
+                        | undefined) ?? [])
+                    : [];
+
+                if (rows.length === 0) {
+                  return (
+                    <pre className="overflow-x-auto text-black rounded-md bg-white p-3 font-mono text-sm">
+                      {result}
+                    </pre>
+                  );
+                }
+
+                return (
+                  <div className="overflow-x-auto rounded-md bg-white">
+                    <table className="w-full border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-gray-100 text-black text-left">
+                          <th className="border px-3 py-2">ID</th>
+                          <th className="border px-3 py-2">Email</th>
+                          <th className="border px-3 py-2">Role</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map(
+                          (user: Record<string, unknown>, index: number) => (
+                            <tr key={index}>
+                              <td className="border text-black px-3 py-2">
+                                {String(user.id ?? "")}
+                              </td>
+                              <td className="border text-black px-3 py-2">
+                                {String(user.email ?? "")}
+                              </td>
+                              <td className="border text-black px-3 py-2">
+                                {String(user.role ?? "")}
+                              </td>
+                            </tr>
+                          ),
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              } catch {
+                return (
+                  <pre className="overflow-x-auto text-black rounded-md bg-white p-3 font-mono text-sm">
+                    {result}
+                  </pre>
+                );
+              }
+            })()}
           </div>
         )}
       </form>
 
       <div className="mt-8 space-y-4">
         <div className="rounded-xl border p-4">
-          <p className="mb-2 font-semibold">Example SQL Statements</p>
+          <p className="mb-2 font-semibold">Example: Dump all users</p>
           <pre className="overflow-x-auto text-black rounded-md bg-gray-50 p-2 font-mono text-xs">
-            {`-- Confidentiality breach, Show all users
-SELECT * FROM users;
+            {`SELECT * FROM users;`}
+          </pre>
+        </div>
 
--- Privilege escalation
-UPDATE users SET role = 'admin' WHERE email = 'user@demo.local';
+        <div className="rounded-xl border p-4">
+          <p className="mb-2 font-semibold">Example: Escalate privilege</p>
+          <pre className="overflow-x-auto text-black rounded-md bg-gray-50 p-2 font-mono text-xs">
+            {`UPDATE users SET role = 'admin' WHERE email = 'user@demo.local';`}
+          </pre>
+        </div>
 
--- Destroy data
-DROP TABLE users;`}
+        <div className="rounded-xl border p-4">
+          <p className="mb-2 font-semibold">Example: Destroy table</p>
+          <pre className="overflow-x-auto text-black rounded-md bg-gray-50 p-2 font-mono text-xs">
+            {`DROP TABLE users;`}
           </pre>
         </div>
       </div>
