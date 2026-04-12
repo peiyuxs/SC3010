@@ -23,7 +23,7 @@ public class RansomwareService {
     // Create a dummy file for demonstration
     public String createDummyFile(String filename, String content) {
         try {
-            String desktopPath = System.getProperty("user.home") + "/Desktop/";
+            String desktopPath = System.getProperty("user.home") + "/Downloads/";
             String filePath = desktopPath + filename;
             File file = new File(filePath);
 
